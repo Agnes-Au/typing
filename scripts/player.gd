@@ -19,4 +19,5 @@ func _unhandled_input(event: InputEvent) -> void:
 			
 func move(dir):
 	position += inputs[dir] * TILE_SIZE
+	print(position)
 	

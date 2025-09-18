@@ -318,5 +318,6 @@ animations = [{
 }]
 
 [node name="Letter" type="AnimatedSprite2D"]
+scale = Vector2(0.8, 0.8)
 sprite_frames = SubResource("SpriteFrames_lkjg3")
 animation = &"A"
