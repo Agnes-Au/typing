@@ -11,8 +11,8 @@ var player
 var player_pos_coord: Vector2
 var wordlist: Array
 var score: int
-var LETTER_SPRITE_SCENE = preload("res://scenes/Letter.tscn")
 
+@export var letter_sprite_scene: PackedScene
 @export var word_label: Label
 @export var score_label: Label
 
@@ -39,7 +39,7 @@ func _process(_delta: float) -> void:
 	$CanvasLayer/TimeProgress.value = ($EatTimer.wait_time - $EatTimer.time_left) * (100 / $EatTimer.wait_time)
 
 func new_letter(letter):
-	var letter_sprite = LETTER_SPRITE_SCENE.instantiate()
+	var letter_sprite = letter_sprite_scene.instantiate()
 	$LetterContainer.add_child(letter_sprite)
 	letter_sprite.animation = letter
 	return letter_sprite
