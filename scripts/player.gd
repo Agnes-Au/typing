@@ -6,6 +6,9 @@ var inputs
 var input_updated = false
 signal input_received(letter)
 signal letter_eaten(letter, dir)
+signal word_discarded
+signal word_submitted
+signal restart
 	
 func _ready():
 	position = position.snapped(Vector2.ONE * TILE_SIZE)
@@ -25,6 +28,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			var eaten_letter = event.as_text().split("+")[1]
 			if eaten_letter in inputs.keys():
 				letter_eaten.emit(eaten_letter, inputs[eaten_letter])
+		elif event.is_action_pressed("discard"):
+			word_discarded.emit()
+		elif event.is_action_pressed("submit"):
+			word_submitted.emit()
+		elif event.is_action_pressed("restart"):
+			restart.emit()
 			
 func move(dir):
 	position += inputs[dir] * TILE_SIZE

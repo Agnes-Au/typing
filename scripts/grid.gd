@@ -5,20 +5,38 @@ const TILE_SIZE = 64
 const LETTER_COUNT = 26  # Number of letters in the alphabet
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 var alphabet_arr = ALPHABET.split()
-
 var letters = []
 var eaten_letters = []
 var player
+var player_pos_coord: Vector2
+var wordlist: Array
+var score: int
 var LETTER_SPRITE_SCENE = preload("res://scenes/Letter.tscn")
 
+@export var word_label: Label
+@export var score_label: Label
+
+func build_wordlist():
+	var file = FileAccess.open("res://assets/wordnik_wordlist.txt", FileAccess.READ)
+	var content = file.get_as_text()
+	var words = content.split("\n")
+	return words
 
 func _ready():
+	wordlist = build_wordlist()
+	Engine.time_scale = 1
 	player = $Player
 	player.input_received.connect(_on_input_received)
 	player.letter_eaten.connect(_on_letter_eaten)
+	player.word_discarded.connect(_on_word_discarded)
+	player.word_submitted.connect(_on_word_submitted)
+	player.restart.connect(_on_restart)
 	generate_grid()
 	position_grid()
 	set_player_input()
+	
+func _process(_delta: float) -> void:
+	$CanvasLayer/TimeProgress.value = ($EatTimer.wait_time - $EatTimer.time_left) * (100 / $EatTimer.wait_time)
 
 func new_letter(letter):
 	var letter_sprite = LETTER_SPRITE_SCENE.instantiate()
@@ -56,7 +74,6 @@ func generate_grid():
 					
 					# the above code doesn't catch all duplicates for some reason so we're doing this again
 					if adj_letters.count(adj_letters[k]) > 1:
-						print(adj_letters[k])
 						letters[current_coords.x][current_coords.y] = alphabet_arr[randi() % LETTER_COUNT]
 	# I guess even after all this there's still a miniscule chance there are duplicates
 	# BUT I DON'T CARE ANYMORE I WORKED HARD DUDE
@@ -65,7 +82,7 @@ func position_grid():
 	for i in range(GRID_SIZE):
 		for j in range(GRID_SIZE):
 			var letter_cell = new_letter(letters[i][j])
-			letter_cell.position = Vector2(float(i) * TILE_SIZE + TILE_SIZE / 2.0, float(j) * TILE_SIZE + TILE_SIZE / 2.0)
+			letter_cell.position = Vector2(float(i) * TILE_SIZE + TILE_SIZE / 2.0, float(j) * TILE_SIZE + TILE_SIZE / 2.0) - Vector2(64*4, 64*4)
 			letter_cell.name = str(letter_cell.position)
 
 func return_adj_coords_if_valid(coord: Vector2):
@@ -93,16 +110,56 @@ func return_adjacent_letters_if_valid(coord: Vector2):
 	return adj_letters
 
 func set_player_input():
-	var player_pos_coord = Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
 	var new_inputs = return_adjacent_letters_if_valid(player_pos_coord)
 	player.set_inputs(new_inputs)
 
+func is_empty_or_null(x):
+	return x == "Empty" or x == null
+
 func _on_input_received():
+	player_pos_coord = Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
+	var adj_cells = return_adjacent_letters_if_valid(player_pos_coord)
+	if adj_cells.all(is_empty_or_null):
+		game_over()
+		return
 	set_player_input()
 	
 func _on_letter_eaten(letter, dir):
-	var player_pos_coord = Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
+	player_pos_coord = Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
 	var new_empty_cell_coord = player_pos_coord + dir
 	letters[new_empty_cell_coord.x][new_empty_cell_coord.y] = "Empty"
 	$LetterContainer.get_child(8*new_empty_cell_coord.x + new_empty_cell_coord.y).play("Empty")
 	eaten_letters.append(letter)
+	word_label.text = "".join(eaten_letters)
+	$EatTimer.start()
+
+func _on_word_discarded():
+	print("discarded ", "".join(eaten_letters))
+	eaten_letters = []
+	word_label.text = ""
+
+func _on_word_submitted():
+	var word_submitted = "".join(eaten_letters)
+	if word_submitted.length() < 3:
+		print("Not enough letters. Try again.")
+		return
+	if word_submitted.to_lower() not in wordlist:
+		print(word_submitted, " is not a valid word. Try again.")
+		return
+
+	print(word_submitted, " is a valid word. Good job!")
+	score += word_submitted.length() * 10
+	score_label.text = str(score)
+	word_label.text = ""
+	eaten_letters = []
+
+func _on_restart():
+	get_tree().reload_current_scene()
+
+func game_over():
+	Engine.time_scale = 0
+	word_label.text = "GAME OVER"
+	word_label.add_theme_color_override("font_color", Color("ff0000"))
+
+func _on_eat_timer_timeout() -> void:
+	game_over()

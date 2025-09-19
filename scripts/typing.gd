@@ -23,7 +23,7 @@ func _ready():
 func _input(event):
 	var key = event.as_text()
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.is_action_pressed("next"):
+		if event.is_action_pressed("submit"):
 			new_word()
 			return
 		
