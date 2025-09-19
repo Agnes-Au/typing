@@ -7,6 +7,7 @@ const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 var alphabet_arr = ALPHABET.split()
 
 var letters = []
+var eaten_letters = []
 var player
 var LETTER_SPRITE_SCENE = preload("res://scenes/Letter.tscn")
 
@@ -14,13 +15,14 @@ var LETTER_SPRITE_SCENE = preload("res://scenes/Letter.tscn")
 func _ready():
 	player = $Player
 	player.input_received.connect(_on_input_received)
+	player.letter_eaten.connect(_on_letter_eaten)
 	generate_grid()
 	position_grid()
 	set_player_input()
 
 func new_letter(letter):
 	var letter_sprite = LETTER_SPRITE_SCENE.instantiate()
-	add_child(letter_sprite)
+	$LetterContainer.add_child(letter_sprite)
 	letter_sprite.animation = letter
 	return letter_sprite
 	
@@ -64,6 +66,7 @@ func position_grid():
 		for j in range(GRID_SIZE):
 			var letter_cell = new_letter(letters[i][j])
 			letter_cell.position = Vector2(float(i) * TILE_SIZE + TILE_SIZE / 2.0, float(j) * TILE_SIZE + TILE_SIZE / 2.0)
+			letter_cell.name = str(letter_cell.position)
 
 func return_adj_coords_if_valid(coord: Vector2):
 	var right_coord = Vector2(coord.x+1, coord.y)
@@ -97,3 +100,9 @@ func set_player_input():
 func _on_input_received():
 	set_player_input()
 	
+func _on_letter_eaten(letter, dir):
+	var player_pos_coord = Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
+	var new_empty_cell_coord = player_pos_coord + dir
+	letters[new_empty_cell_coord.x][new_empty_cell_coord.y] = "Empty"
+	$LetterContainer.get_child(8*new_empty_cell_coord.x + new_empty_cell_coord.y).play("Empty")
+	eaten_letters.append(letter)

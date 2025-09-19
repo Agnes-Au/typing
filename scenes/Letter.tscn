@@ -150,6 +150,14 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": null
+}],
+"loop": true,
+"name": &"Empty",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_dpvxj")
 }],
 "loop": true,
@@ -320,4 +328,4 @@ animations = [{
 [node name="Letter" type="AnimatedSprite2D"]
 scale = Vector2(0.8, 0.8)
 sprite_frames = SubResource("SpriteFrames_lkjg3")
-animation = &"A"
+animation = &"Empty"

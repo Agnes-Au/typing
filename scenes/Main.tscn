@@ -13,3 +13,5 @@ texture = ExtResource("2_rvslj")
 
 [node name="Player" parent="." instance=ExtResource("1_elqb8")]
 z_index = 1000
+
+[node name="LetterContainer" type="Node" parent="."]

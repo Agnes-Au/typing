@@ -28,7 +28,6 @@ func _input(event):
 			return
 		
 		$Key.text = key
-		print(index)
 		if index >= current_word.length()-1:
 			new_word()
 			return
