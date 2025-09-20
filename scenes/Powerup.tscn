@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://n8f8i0k03dap"]
+
+[ext_resource type="Texture2D" uid="uid://c0dnx0st36l4p" path="res://assets/powerups/add_vowel.png" id="1_lo7v7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jeg8q"]
+size = Vector2(55, 55)
+
+[node name="Powerup" type="Area2D"]
+modulate = Color(1, 1, 1, 0.84313726)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_jeg8q")
+
+[node name="AddVowel" type="Sprite2D" parent="."]
+texture = ExtResource("1_lo7v7")

@@ -81,11 +81,10 @@ func generate_grid():
 	# BUT I DON'T CARE ANYMORE I WORKED HARD DUDE
 		
 func position_grid():
-	for i in range(GRID_SIZE):
-		for j in range(GRID_SIZE):
+	for i in range(letters.size()):
+		for j in range(letters[0].size()):
 			var letter_cell = new_letter_sprite(letters[i][j])
 			letter_cell.position = Vector2(float(i) * TILE_SIZE + TILE_SIZE / 2.0, float(j) * TILE_SIZE + TILE_SIZE / 2.0) - Vector2(64*4, 64*4)
-			letter_cell.name = str(letter_cell.position)
 
 func get_player_coords():
 	return Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
@@ -98,7 +97,7 @@ func return_adj_coords_if_valid(coord: Vector2):
 	var valid_coords = []
 	
 	for c in [right_coord, left_coord, up_coord, down_coord]:
-		if c.x < 0 or c.x >= GRID_SIZE or c.y < 0 or c.y >= GRID_SIZE:
+		if c.x < 0 or c.x >= letters.size() or c.y < 0 or c.y >= letters[0].size():
 			valid_coords.append(null)
 		else:
 			valid_coords.append(c)
@@ -164,6 +163,12 @@ func _on_word_submitted():
 	print(word_submitted, " is a valid word. Good job!")
 	add_score(word_submitted.length() * 10)
 	reset_eaten_letters()
+	
+	var arr = []
+	for i in letters[0].size():
+		arr.append(random_letter())
+	letters.append(arr)
+	position_grid()
 
 func _on_restart():
 	get_tree().reload_current_scene()
