@@ -3,12 +3,10 @@ extends Node2D
 const GRID_SIZE = 8
 const TILE_SIZE = 64
 const LETTER_COUNT = 26  # Number of letters in the alphabet
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-var alphabet_arr = ALPHABET.split()
+
 var letters = []
 var eaten_letters = []
 var player
-var player_pos_coord: Vector2
 var wordlist: Array
 var score: int
 
@@ -21,6 +19,11 @@ func build_wordlist():
 	var content = file.get_as_text()
 	var words = content.split("\n")
 	return words
+	
+func random_letter():
+	const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	var alphabet_arr = ALPHABET.split()
+	return alphabet_arr[randi() % LETTER_COUNT]
 
 func _ready():
 	wordlist = build_wordlist()
@@ -38,7 +41,7 @@ func _ready():
 func _process(_delta: float) -> void:
 	$CanvasLayer/TimeProgress.value = ($EatTimer.wait_time - $EatTimer.time_left) * (100 / $EatTimer.wait_time)
 
-func new_letter(letter):
+func new_letter_sprite(letter):
 	var letter_sprite = letter_sprite_scene.instantiate()
 	$LetterContainer.add_child(letter_sprite)
 	letter_sprite.animation = letter
@@ -48,8 +51,7 @@ func generate_grid():
 	for i in range(GRID_SIZE):
 		var row = []
 		for j in range(GRID_SIZE):
-			var random_letter_index = randi() % LETTER_COUNT  # Random index for A-Z
-			row.append(alphabet_arr[random_letter_index])
+			row.append(random_letter())
 		letters.append(row)
 		
 	# this part onwards is for cleaning up adjacents and it's HORRIBLY WRITTEN.
@@ -58,13 +60,13 @@ func generate_grid():
 	# grabs every letter's adjacents, checks if they're identical and replace in adj_letters if not
 	for i in range(GRID_SIZE):
 		for j in range(GRID_SIZE):
-			var adj_letters = return_adjacent_letters_if_valid(Vector2(i, j))
+			var adj_letters = return_adj_letters_if_valid(Vector2(i, j))
 			var adj_coords = return_adj_coords_if_valid(Vector2(i, j))
 			for adj_letter in adj_letters:
 				if adj_letter != null:
 					while adj_letters.count(adj_letter) > 1:
 						adj_letters.erase(adj_letter)
-						adj_letters.insert(adj_letters.bsearch(adj_letter), alphabet_arr[randi() % LETTER_COUNT])
+						adj_letters.insert(adj_letters.bsearch(adj_letter), random_letter())
 	
 	# replace in actual letters array
 			for k in range(4):
@@ -74,16 +76,19 @@ func generate_grid():
 					
 					# the above code doesn't catch all duplicates for some reason so we're doing this again
 					if adj_letters.count(adj_letters[k]) > 1:
-						letters[current_coords.x][current_coords.y] = alphabet_arr[randi() % LETTER_COUNT]
+						letters[current_coords.x][current_coords.y] = random_letter()
 	# I guess even after all this there's still a miniscule chance there are duplicates
 	# BUT I DON'T CARE ANYMORE I WORKED HARD DUDE
 		
 func position_grid():
 	for i in range(GRID_SIZE):
 		for j in range(GRID_SIZE):
-			var letter_cell = new_letter(letters[i][j])
+			var letter_cell = new_letter_sprite(letters[i][j])
 			letter_cell.position = Vector2(float(i) * TILE_SIZE + TILE_SIZE / 2.0, float(j) * TILE_SIZE + TILE_SIZE / 2.0) - Vector2(64*4, 64*4)
 			letter_cell.name = str(letter_cell.position)
+
+func get_player_coords():
+	return Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
 
 func return_adj_coords_if_valid(coord: Vector2):
 	var right_coord = Vector2(coord.x+1, coord.y)
@@ -99,7 +104,7 @@ func return_adj_coords_if_valid(coord: Vector2):
 			valid_coords.append(c)
 	return valid_coords
 
-func return_adjacent_letters_if_valid(coord: Vector2):
+func return_adj_letters_if_valid(coord: Vector2):
 	var adj_letters = []
 	
 	for c in return_adj_coords_if_valid(coord):
@@ -110,33 +115,42 @@ func return_adjacent_letters_if_valid(coord: Vector2):
 	return adj_letters
 
 func set_player_input():
-	var new_inputs = return_adjacent_letters_if_valid(player_pos_coord)
+	var new_inputs = return_adj_letters_if_valid(get_player_coords())
 	player.set_inputs(new_inputs)
+
 
 func is_empty_or_null(x):
 	return x == "Empty" or x == null
 
 func _on_input_received():
-	player_pos_coord = Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
-	var adj_cells = return_adjacent_letters_if_valid(player_pos_coord)
+	var adj_cells = return_adj_letters_if_valid(get_player_coords())
 	if adj_cells.all(is_empty_or_null):
 		game_over()
 		return
 	set_player_input()
 	
 func _on_letter_eaten(letter, dir):
-	player_pos_coord = Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
-	var new_empty_cell_coord = player_pos_coord + dir
+	var new_empty_cell_coord = get_player_coords() + dir
 	letters[new_empty_cell_coord.x][new_empty_cell_coord.y] = "Empty"
 	$LetterContainer.get_child(8*new_empty_cell_coord.x + new_empty_cell_coord.y).play("Empty")
 	eaten_letters.append(letter)
 	word_label.text = "".join(eaten_letters)
+	if return_adj_letters_if_valid(get_player_coords()).all(is_empty_or_null):
+		game_over()
+		return
 	$EatTimer.start()
+
+func reset_eaten_letters():
+	eaten_letters = []
+	word_label.text = ""
 
 func _on_word_discarded():
 	print("discarded ", "".join(eaten_letters))
-	eaten_letters = []
-	word_label.text = ""
+	reset_eaten_letters()
+
+func add_score(num):
+	score += num
+	score_label.text = str(score)
 
 func _on_word_submitted():
 	var word_submitted = "".join(eaten_letters)
@@ -148,10 +162,8 @@ func _on_word_submitted():
 		return
 
 	print(word_submitted, " is a valid word. Good job!")
-	score += word_submitted.length() * 10
-	score_label.text = str(score)
-	word_label.text = ""
-	eaten_letters = []
+	add_score(word_submitted.length() * 10)
+	reset_eaten_letters()
 
 func _on_restart():
 	get_tree().reload_current_scene()
