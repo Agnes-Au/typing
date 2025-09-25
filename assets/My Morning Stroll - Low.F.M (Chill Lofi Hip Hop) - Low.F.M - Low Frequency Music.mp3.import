@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dnuwsb3a2w4y2"
+path="res://.godot/imported/My Morning Stroll - Low.F.M (Chill Lofi Hip Hop) - Low.F.M - Low Frequency Music.mp3-15f1168156ef90a5c545396b53d6c3a5.mp3str"
+
+[deps]
+
+source_file="res://assets/My Morning Stroll - Low.F.M (Chill Lofi Hip Hop) - Low.F.M - Low Frequency Music.mp3"
+dest_files=["res://.godot/imported/My Morning Stroll - Low.F.M (Chill Lofi Hip Hop) - Low.F.M - Low Frequency Music.mp3-15f1168156ef90a5c545396b53d6c3a5.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -164,11 +164,11 @@ func _on_word_submitted():
 	add_score(word_submitted.length() * 10)
 	reset_eaten_letters()
 	
-	var arr = []
-	for i in letters[0].size():
-		arr.append(random_letter())
-	letters.append(arr)
-	position_grid()
+	#var arr = []
+	#for i in letters[0].size():
+		#arr.append(random_letter())
+	#letters.append(arr)
+	#position_grid()
 
 func _on_restart():
 	get_tree().reload_current_scene()
