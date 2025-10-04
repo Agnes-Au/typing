@@ -86,6 +86,36 @@ func position_grid():
 			var letter_cell = new_letter_sprite(letters[i][j])
 			letter_cell.position = Vector2(float(i) * TILE_SIZE + TILE_SIZE / 2.0, float(j) * TILE_SIZE + TILE_SIZE / 2.0) - Vector2(64*4, 64*4)
 
+func clear_board():
+	for child in $LetterContainer.get_children():
+		child.queue_free()
+
+func new_column(letters_to_add: Array):
+	for i in (letters[0].size() - letters_to_add.size()):
+		letters_to_add.append("Empty")
+	letters_to_add.shuffle()
+	letters.append(letters_to_add)
+
+func add_letters_to_board(no_of_letters: int):
+	# 1. determine whether each letter should go back in the grid or show up on a new column
+	# 2. replace "Empty"s in letters if go back
+	# 3. add new column with new letters if new column
+	var new_column_letters = []
+	for n in range(no_of_letters):
+		if randf() > 0.5:
+			for i in range(letters.size()):
+				for j in range(letters[0].size()):
+					if letters[i][j] == "Empty":
+						letters[i][j] = random_letter()
+						continue
+			new_column_letters.append(random_letter())
+		else:
+			new_column_letters.append(random_letter())
+	new_column(new_column_letters)
+	
+	clear_board()
+	position_grid()
+
 func get_player_coords():
 	return Vector2((player.position.x/32-1)/2, (player.position.y/32-1)/2)
 
@@ -131,7 +161,6 @@ func _on_input_received():
 func _on_letter_eaten(letter, dir):
 	var new_empty_cell_coord = get_player_coords() + dir
 	letters[new_empty_cell_coord.x][new_empty_cell_coord.y] = "Empty"
-	# something's wrong with the line of code below that makes letters not eaten after new row is added
 	$LetterContainer.get_child(8*new_empty_cell_coord.x + new_empty_cell_coord.y).play("Empty")
 	eaten_letters.append(letter)
 	word_label.text = "".join(eaten_letters)
@@ -165,13 +194,8 @@ func _on_word_submitted():
 	add_score(word_submitted.length() * 10)
 	reset_eaten_letters()
 	
-	var arr = []
-	for i in letters[0].size():
-		arr.append(random_letter())
-	letters.append(arr)
-	for child in $LetterContainer.get_children():
-		child.queue_free()
-	position_grid()
+	# add letters functionality here
+	add_letters_to_board(word_submitted.length()-2)
 
 func _on_restart():
 	get_tree().reload_current_scene()
