@@ -1,10 +1,43 @@
-[gd_scene load_steps=2 format=3 uid="uid://dl88i8juyfld7"]
+[gd_scene load_steps=5 format=3 uid="uid://dl88i8juyfld7"]
 
-[ext_resource type="Texture2D" uid="uid://u02ytpfmar13" path="res://icon.svg" id="1_mtyf4"]
+[ext_resource type="Shader" uid="uid://cxafi2ra3ollc" path="res://assets/scrolling_bg.gdshader" id="1_ivycn"]
+[ext_resource type="Texture2D" uid="uid://c6afq1ko2u67n" path="res://assets/pattern_16.png" id="2_2au82"]
+[ext_resource type="Texture2D" uid="uid://dke8ljm2iv60f" path="res://assets/letter_textures/texture_5.png" id="2_ivycn"]
 
-[node name="Node2D" type="Node2D"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_myinc"]
+shader = ExtResource("1_ivycn")
+shader_parameter/scroll_speed = 0.02000000095
+shader_parameter/angle_degrees = 45.0
+shader_parameter/repeat_x = 4.0
+shader_parameter/repeat_y = 4.0
+shader_parameter/spacing = 0.0
+shader_parameter/tint = Color(0.48482847, 0.72032917, 0.5664006, 1)
+shader_parameter/texture_to_scroll = ExtResource("2_2au82")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("1_mtyf4")
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="Node2D" type="Node2D" parent="."]
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.69036734, 0.8205423, 0.6088781, 1)
+
+[node name="TextureRect" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_myinc")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_ivycn")
+stretch_mode = 6

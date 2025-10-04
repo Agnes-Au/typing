@@ -1,6 +1,23 @@
-[gd_scene load_steps=29 format=3 uid="uid://cak8q0jlxpjt3"]
+[gd_scene load_steps=31 format=3 uid="uid://cak8q0jlxpjt3"]
 
+[ext_resource type="Shader" uid="uid://bdb48igr3c16x" path="res://assets/test.gdshader" id="1_2t2cd"]
 [ext_resource type="Texture2D" uid="uid://ba3bjsw0mfmgb" path="res://assets/branca.png" id="1_gecjn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_65x1g"]
+render_priority = 0
+shader = ExtResource("1_2t2cd")
+shader_parameter/light_direction = Vector3(0.5, 0, 0)
+shader_parameter/roughness = 1.0
+shader_parameter/roughness_channel = 0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+shader_parameter/highlight_color = Color(1, 1, 1, 1)
+shader_parameter/shadow_color = Color(0, 0, 0, 1)
+shader_parameter/dot_pattern_scale = 43.6350020251625
+shader_parameter/dot_density = 16.78000074955
+shader_parameter/angle = 1.70000008075
+shader_parameter/shape_smooth = 0.810000038475
+shader_parameter/highlight_range = 1.0
+shader_parameter/shadow_range = 0.30000001425
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2t2cd"]
 atlas = ExtResource("1_gecjn")
@@ -326,6 +343,7 @@ animations = [{
 }]
 
 [node name="Letter" type="AnimatedSprite2D"]
+material = SubResource("ShaderMaterial_65x1g")
 scale = Vector2(0.8, 0.8)
 sprite_frames = SubResource("SpriteFrames_lkjg3")
-animation = &"Empty"
+animation = &"H"

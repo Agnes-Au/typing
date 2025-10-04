@@ -131,6 +131,7 @@ func _on_input_received():
 func _on_letter_eaten(letter, dir):
 	var new_empty_cell_coord = get_player_coords() + dir
 	letters[new_empty_cell_coord.x][new_empty_cell_coord.y] = "Empty"
+	# something's wrong with the line of code below that makes letters not eaten after new row is added
 	$LetterContainer.get_child(8*new_empty_cell_coord.x + new_empty_cell_coord.y).play("Empty")
 	eaten_letters.append(letter)
 	word_label.text = "".join(eaten_letters)
@@ -164,11 +165,11 @@ func _on_word_submitted():
 	add_score(word_submitted.length() * 10)
 	reset_eaten_letters()
 	
-	#var arr = []
-	#for i in letters[0].size():
-		#arr.append(random_letter())
-	#letters.append(arr)
-	#position_grid()
+	var arr = []
+	for i in letters[0].size():
+		arr.append(random_letter())
+	letters.append(arr)
+	position_grid()
 
 func _on_restart():
 	get_tree().reload_current_scene()
