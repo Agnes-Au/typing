@@ -196,6 +196,8 @@ func _on_word_submitted():
 	
 	# add letters functionality here
 	add_letters_to_board(word_submitted.length()-2)
+	# now there's a glaring bug where way more than the intended number
+	# of letters get added
 
 func _on_restart():
 	get_tree().reload_current_scene()
