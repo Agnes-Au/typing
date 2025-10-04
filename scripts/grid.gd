@@ -169,6 +169,8 @@ func _on_word_submitted():
 	for i in letters[0].size():
 		arr.append(random_letter())
 	letters.append(arr)
+	for child in $LetterContainer.get_children():
+		child.queue_free()
 	position_grid()
 
 func _on_restart():
